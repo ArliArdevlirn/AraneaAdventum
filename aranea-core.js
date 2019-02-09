@@ -59,3 +59,11 @@ client.on('message', async msg =>{
 
 client.login(config.token);
 
+const http = require('http');
+const express = require('express');
+const app = express();
+app.get("/", (request, response) => {
+  //console.log(Date.now() + " Ping Received");
+  response.sendStatus(200);                            /// example how to keep your bot 24/7
+});
+app.listen(process.env.PORT);

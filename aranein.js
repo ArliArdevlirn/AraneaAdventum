@@ -294,7 +294,7 @@ class AraneinEntity
             }
             message.reply(`Vous vous couchez et reposerez ${someille}secondes`);
             setTimeout(reveil, someille*1000, this.etat, message);
-            message.reply(`Message non définis`);
+            //message.reply(`Message non définis`);
         } else {
             message.reply(`Impossible de dormir, vous êtes actuellement occupé.`);
         }
