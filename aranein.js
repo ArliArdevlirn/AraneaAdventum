@@ -3,6 +3,8 @@ const cuillette = 2;
 const exploration = 5;
 
 const someille = 60; // energie restauré par le someille.
+const tcueillir = 10; //temps pour cueillir
+const texplorer = 10; //temps pour explorer
 //energie restauré par eElement.
 const epomme = 30;
 const egpomme = 60;
@@ -51,7 +53,7 @@ const rclochetteO = 100;
 const rcarillonO = 100;
 const rcarillonP = 100;
 const rgemmeA = 100; //rareté d'une gemme
-//rareté de la taille de la gemme /100
+//rareté de la taille de la gemme
 const rgemmeP = 65;
 const rgemmeM = 30;
 const rgemmeG = 5;  
@@ -61,10 +63,10 @@ const rgclochette = 300;
 const rgcarillon = 200;
 const rggemme = 100;
 
-const explomin = 3;
-const explomax = 5;
-const cueillmin = 3;
-const cueillmax = 5;
+const explomin = 6;
+const explomax = 12;
+const cueillmin = 6;
+const cueillmax = 12;
 
 
 
@@ -128,6 +130,7 @@ class AraneinEntity
 
     cueillir(bot, message, args)
     {
+        if(this.etat != "innocupe"){message.reply("Impossible de partir à la cueillette lorsque vous êtes déja occupé.");return;}
         if (this.energie >= cuillette) {
             var nbreward = Math.floor(Math.random()*(cueillmax-cueillmin));
             nbreward = nbreward + cueillmin;
@@ -156,7 +159,10 @@ class AraneinEntity
             if (nbgpomme>0) {
                 msg += `\`${nbgpomme} grosse pomme(s) ,\``
             }
-            message.reply(msg);
+            this.etat = "occupe";
+            setTimeout(attenteAction, tcueillir*1000, this, message, bot, msg);
+            message.reply("est parti faire cueillette.");
+            this.sauvegarderdonnee(bot,this.id,args);
         } else {
             message.reply(`Vous êtes trop fatigué, au moins ${cuillette} points d'énergie sont nécéssaire pour sortir cueillir.`);
         }
@@ -166,7 +172,8 @@ class AraneinEntity
 
     explorer(bot, message, args)
     {
-        if (energie >= exploration) {
+        if(this.etat != "innocupe"){message.reply("Impossible de partir en exploration lorsque vous êtes déja occupé.");return;}
+        if (this.energie >= exploration) {
             var nbreward = Math.floor(Math.random()*(explomax-explomin));
             nbreward = nbreward + explomin;
             var nbbilleC = 0; var nbbilleF = 0; var nbbilleA = 0; var nbbilleO = 0; var nbbilleP = 0;
@@ -238,47 +245,50 @@ class AraneinEntity
             }
             var msg = `Vous avez trouvé : `;
             if (nbbilleC>0) {
-                msg += `\`${nbbilleC}bille(s) de cuivre\`, `;
+                msg += `\`${nbbilleC} bille(s) de cuivre\`, `;
             }
             if (nbbilleF>0) {
-                msg += `\`${nbbilleF}bille(s) de fer\`, `;
+                msg += `\`${nbbilleF} bille(s) de fer\`, `;
             }
             if (nbbilleA>0) {
-                msg += `\`${nbbilleA}bille(s) d'argent,\``;
+                msg += `\`${nbbilleA} bille(s) d'argent,\` `;
             }
             if (nbbilleO>0) {
-                msg += `\`${nbbilleO}bille(s) d'or,\``;
+                msg += `\`${nbbilleO} bille(s) d'or,\` `;
             }
             if (nbbilleP>0) {
-                msg += `\`${nbbilleP}bille(s) de platine,\``;
+                msg += `\`${nbbilleP} bille(s) de platine,\` `;
             }
             if (nbclochetteC>0) {
-                msg += `\`${nbclochetteC}clochette(s) de cuivre,\``;
+                msg += `\`${nbclochetteC} clochette(s) de cuivre,\` `;
             }
             if (nbclochetteA>0) {
-                msg += `\`${nbclochetteA}clochette(s) d'argent,\``;
+                msg += `\`${nbclochetteA} clochette(s) d'argent,\` `;
             }
             if (nbclochetteO>0) {
-                msg += `\`${nbclochetteO}clochette(s) d'or,\``;
+                msg += `\`${nbclochetteO} clochette(s) d'or,\` `;
             }
             if (nbcarillonO>0) {
-                msg += `\`${nbcarillonO}carillon(s) d'or,\``;
+                msg += `\`${nbcarillonO} carillon(s) d'or,\` `;
             }
             if (nbcarillonP>0) {
-                msg += `\`${nbcarillonP}carillon(s) de platine,\``;
+                msg += `\`${nbcarillonP} carillon(s) de platine,\` `;
             }
             if (nbgemmeP>0) {
-                msg += `\`${nbgemmeP}petite gemme(s),\``;
+                msg += `\`${nbgemmeP} petite gemme(s),\` `;
             }
             if (nbgemmeM>0) {
-                msg += `\`${nbgemmeM}gemme(s) moyenne,\``;
+                msg += `\`${nbgemmeM} gemme(s) moyenne,\` `;
             }
             if (nbgemmeG>0) {
-                msg += `\`${nbgemmeG}grosse gemme(s),\``;
+                msg += `\`${nbgemmeG} grosse gemme(s),\` `;
             }
-            message.reply(msg);
+            this.etat = "occupe";
+            setTimeout(attenteAction, texplorer*1000, this, message, bot, msg);
+            message.reply("est parti en exploration.");
+            this.sauvegarderdonnee(bot,this.id,args);
         } else {
-            message.reply(`Vous êtes trop fatigué, au moins ${exploration} points d'énergie sont nécéssaire pour sortir cueillir.`);
+            message.reply(`Vous êtes trop fatigué, au moins ${exploration} points d'énergie sont nécéssaire pour sortir explorer.`);
         }
     }
 
@@ -287,19 +297,26 @@ class AraneinEntity
     dormir(bot, message, args)
     {
         if (this.etat == "innocupe") {
-            this.etat = "occuper";
+            this.etat = "dormir";
             this.energie += 50;
             if (this.energie > this.energiemax) {
                 this.energie = this.energiemax;
             }
             message.reply(`Vous vous couchez et reposerez ${someille}secondes`);
-            setTimeout(reveil, someille*1000, this.etat, message);
+            setTimeout(reveil, someille*1000, this, message, bot, args);
+            this.sauvegarderdonnee(bot,this.id,args);
             //message.reply(`Message non définis`);
         } else {
             message.reply(`Impossible de dormir, vous êtes actuellement occupé.`);
         }
     }
 
+    
+    resetstatut(bot, playerid, args)
+    {
+      this.etat = "innocupe";
+      this.sauvegarderdonnee(bot,this.id,args);
+    } 
 
 
     profil(bot, message, args)
@@ -341,6 +358,7 @@ Grosse gemme : ${this.inventaire.gemme.grosse}
 
     manger(bot, message, args)
     {
+        if(this.etat != "innocupe"){message.reply("Impossible de manger lorsque vous êtes déja occupé.");return;}
         if(this.energie != this.energiemax)
         {switch (args[1]) {
             case "pomme":
@@ -461,7 +479,9 @@ Grosse gemme : ${this.inventaire.gemme.grosse}
                 message.reply(`vous devez indiquer ce que vous désirez manger et en quelle quantité à la suite de cette commande
 pomme, gpomme(grosse pomme), baie, jus, gelee, max(mange au hazard jusqu'au seuil d'énergie max). `);
                 break;
-        }}else{
+        }
+        this.sauvegarderdonnee(bot,this.id,args);
+        }else{
             message.reply(`Vous êtes au déjâ au maximum d'énergie.`);
         }
     }
@@ -473,24 +493,26 @@ pomme, gpomme(grosse pomme), baie, jus, gelee, max(mange au hazard jusqu'au seui
         if (args[1]) {
             switch (args[1]) {
                 case "pomme":
-                    if (eval("this.inventaire."+args[1]) != 0) {
+                    if (this.inventaire.pomme != 0) {
                         if (args[2]) {
-                            if (typeof args[2] != typeof eval("this.inventaire."+args[1])) {
+                            if (typeof args[2] != typeof this.inventaire.pomme) {
                                 args[2] = parseInt(args[2]);
                             }
-                            if (parseInt(args[2]) > eval("this.inventaire."+args[1])) {
-                                args[2] = eval("this.inventaire."+args[1]);
+                            if (parseInt(args[2]) > this.inventaire.pomme) {
+                                args[2] = this.inventaire.pomme;
                             }
-                            eval("this.inventaire."+args[1]) -= args[2];
-                            this.jeton += (eval("v"+args[1])*args[2]);
+                            this.inventaire.pomme -= args[2];
+                            this.jeton += (vpomme*args[2]);
+                            message.reply(`vous avez vendu ${args[2]} ${args[1]}(s) pour ${(vpomme*args[2])}jetons.`);
                         } else {
-                            eval("this.inventaire."+args[1]) -= 1;
-                            this.jeton += eval("v"+args[1]);
+                            this.inventaire.pomme -= 1;
+                            this.jeton += vpomme;
+                            message.reply(`vous avez vendu 1 ${args[1]}(s) pour ${vpomme}jetons.`);
                         }
                     } else {
                         message.reply(`Vous ne possedez pas de ${args[1]}`);
                     }
-                    console.log("pomme:"+this.inventaire.pomme+", jeton:"+this.jeton);
+                    //console.log("pomme:"+this.inventaire.pomme+", jeton:"+this.jeton);
                     break;
                 case "grossepomme":
                     if (this.inventaire["grosse pomme"] != 0) {
@@ -503,66 +525,74 @@ pomme, gpomme(grosse pomme), baie, jus, gelee, max(mange au hazard jusqu'au seui
                             }
                             this.inventaire["grosse pomme"] -= args[2];
                             this.jeton += (vgpomme*args[2]);
+                            message.reply(`vous avez vendu ${args[2]}Grosse(s) pomme(s) pour ${(vgpomme*args[2])}jetons.`);
                         } else {
                             this.inventaire["grosse pomme"] -= 1;
                             this.jeton += vgpomme;
+                            message.reply(`vous avez vendu 1 Grosse pomme pour ${vgpomme}jetons.`);
                         }
                     } else {
                         message.reply(`Vous ne possedez pas de Grosse pomme`);
                     }
                     break;
                 case "baie":
-                    if (eval("this.inventaire."+args[1]) != 0) {
+                    if (this.inventaire.baie != 0) {
                         if (args[2]) {
-                            if (typeof args[2] != typeof eval("this.inventaire."+args[1])) {
+                            if (typeof args[2] != typeof this.inventaire.baie) {
                                 args[2] = parseInt(args[2]);
                             }
-                            if (parseInt(args[2]) > eval("this.inventaire."+args[1])) {
-                                args[2] = eval("this.inventaire."+args[1]);
+                            if (parseInt(args[2]) > this.inventaire.baie) {
+                                args[2] = this.inventaire.baie;
                             }
-                            eval("this.inventaire."+args[1]) -= args[2];
-                            this.jeton += (eval("v"+args[1])*args[2]);
+                            this.inventaire.baie -= args[2];
+                            this.jeton += (vbaie*args[2]);
+                            message.reply(`vous avez vendu ${args[2]} ${args[1]}(s) pour ${(vbaie*args[2])}jetons.`);
                         } else {
-                            eval("this.inventaire."+args[1]) -= 1;
-                            this.jeton += eval("v"+args[1]);
+                            this.inventaire.baie -= 1;
+                            this.jeton += vbaie;
+                            message.reply(`vous avez vendu 1 ${args[1]}(s) pour ${vbaie}jetons.`);
                         }
                     } else {
                         message.reply(`Vous ne possedez pas de ${args[1]}`);
                     }
                     break;
                 case "jus":
-                    if (eval("this.inventaire."+args[1]) != 0) {
+                    if (this.inventaire.jus != 0) {
                         if (args[2]) {
-                            if (typeof args[2] != typeof eval("this.inventaire."+args[1])) {
+                            if (typeof args[2] != typeof this.inventaire.jus) {
                                 args[2] = parseInt(args[2]);
                             }
-                            if (parseInt(args[2]) > eval("this.inventaire."+args[1])) {
-                                args[2] = eval("this.inventaire."+args[1]);
+                            if (parseInt(args[2]) > this.inventaire.jus) {
+                                args[2] = this.inventaire.jus;
                             }
-                            eval("this.inventaire."+args[1]) -= args[2];
-                            this.jeton += (eval("v"+args[1])*args[2]);
+                            this.inventaire.jus -= args[2];
+                            this.jeton += (vjus*args[2]);
+                            message.reply(`vous avez vendu ${args[2]} ${args[1]}(s) pour ${(vjus*args[2])}jetons.`);
                         } else {
                             eval("this.inventaire."+args[1]) -= 1;
                             this.jeton += eval("v"+args[1]);
+                            message.reply(`vous avez vendu 1 ${args[1]}(s) pour ${vjus}jetons.`);
                         }
                     } else {
                         message.reply(`Vous ne possedez pas de ${args[1]}`);
                     }
                     break;
                 case "gelee":
-                    if (eval("this.inventaire."+args[1]) != 0) {
+                    if (this.inventaire.gelee != 0) {
                         if (args[2]) {
-                            if (typeof args[2] != typeof eval("this.inventaire."+args[1])) {
+                            if (typeof args[2] != typeof this.inventaire.gelee) {
                                 args[2] = parseInt(args[2]);
                             }
-                            if (parseInt(args[2]) > eval("this.inventaire."+args[1])) {
-                                args[2] = eval("this.inventaire."+args[1]);
+                            if (parseInt(args[2]) > this.inventaire.gelee) {
+                                args[2] = this.inventaire.gelee;
                             }
-                            eval("this.inventaire."+args[1]) -= args[2];
-                            this.jeton += (eval("v"+args[1])*args[2]);
+                            this.inventaire.gelee -= args[2];
+                            this.jeton += this.inventaire.gelee;
+                            message.reply(`vous avez vendu ${args[2]} ${args[1]}(s) pour ${(vgelee*args[2])}jetons.`);
                         } else {
                             eval("this.inventaire."+args[1]) -= 1;
                             this.jeton += eval("v"+args[1]);
+                            message.reply(`vous avez vendu 1 ${args[1]}(s) pour ${vgelee}jetons.`);
                         }
                     } else {
                         message.reply(`Vous ne possedez pas de ${args[1]}`);
@@ -579,9 +609,11 @@ pomme, gpomme(grosse pomme), baie, jus, gelee, max(mange au hazard jusqu'au seui
                             }
                             this.inventaire.bille.cuivre -= args[2];
                             this.jeton += (vbilleC*args[2]);
+                            message.reply(`vous avez vendu ${args[2]} Bille(s) de cuivre pour ${(vbilleC*args[2])}jetons.`);
                         } else {
                             this.inventaire.bille.cuivre -= 1;
                             this.jeton += vbilleC;
+                            message.reply(`vous avez vendu 1 Bille de cuivre pour ${vbilleC}jetons.`);
                         }
                     } else {
                         message.reply(`Vous ne possedez pas de Bille de cuivre`);
@@ -598,9 +630,11 @@ pomme, gpomme(grosse pomme), baie, jus, gelee, max(mange au hazard jusqu'au seui
                             }
                             this.inventaire.bille.fer -= args[2];
                             this.jeton += (vbilleF*args[2]);
+                            message.reply(`vous avez vendu ${args[2]} Bille(s) de fer pour ${(vbilleF*args[2])}jetons.`);
                         } else {
                             this.inventaire.bille.fer -= 1;
                             this.jeton += vbilleF;
+                            message.reply(`vous avez vendu 1 Bille de fer pour ${vbilleF}jetons.`);
                         }
                     } else {
                         message.reply(`Vous ne possedez pas de Bille de fer`);
@@ -617,9 +651,11 @@ pomme, gpomme(grosse pomme), baie, jus, gelee, max(mange au hazard jusqu'au seui
                             }
                             this.inventaire.bille.argent -= args[2];
                             this.jeton += (vbilleA*args[2]);
+                            message.reply(`vous avez vendu ${args[2]} Bille(s) d'argent pour ${(vbilleA*args[2])}jetons.`);
                         } else {
                             this.inventaire.bille.argent -= 1;
                             this.jeton += vbilleA;
+                            message.reply(`vous avez vendu 1 Bille d'argent pour ${vbilleA}jetons.`);
                         }
                     } else {
                         message.reply(`Vous ne possedez pas de Bille d'argent`);
@@ -636,9 +672,11 @@ pomme, gpomme(grosse pomme), baie, jus, gelee, max(mange au hazard jusqu'au seui
                             }
                             this.inventaire.bille.or -= args[2];
                             this.jeton += (vbilleO*args[2]);
+                            message.reply(`vous avez vendu ${args[2]} Bille(s) d'or' pour ${(vbilleO*args[2])}jetons.`);
                         } else {
                             this.inventaire.bille.or -= 1;
                             this.jeton += vbilleO;
+                            message.reply(`vous avez vendu 1 Bille d'or pour ${vbilleO}jetons.`);
                         }
                     } else {
                         message.reply(`Vous ne possedez pas de Bille d'or`);
@@ -655,9 +693,11 @@ pomme, gpomme(grosse pomme), baie, jus, gelee, max(mange au hazard jusqu'au seui
                             }
                             this.inventaire.bille.platine -= args[2];
                             this.jeton += (vbilleP*args[2]);
+                            message.reply(`vous avez vendu ${args[2]} Bille(s) de platine pour ${(vbilleP*args[2])}jetons.`);
                         } else {
                             this.inventaire.bille.platine -= 1;
                             this.jeton += vbilleP;
+                            message.reply(`vous avez vendu 1 Bille de platine pour ${vbilleP}jetons.`);
                         }
                     } else {
                         message.reply(`Vous ne possedez pas de ${args[1]}`);
@@ -674,9 +714,11 @@ pomme, gpomme(grosse pomme), baie, jus, gelee, max(mange au hazard jusqu'au seui
                             }
                             this.inventaire.clochette.cuivre -= args[2];
                             this.jeton += (vclochetteC*args[2]);
+                            message.reply(`vous avez vendu ${args[2]} Clochette(s) de cuivre pour ${(vclochetteC*args[2])}jetons.`);
                         } else {
                             this.inventaire.clochette.cuivre -= 1;
                             this.jeton += vclochetteC;
+                            message.reply(`vous avez vendu 1 Clochette de cuivre pour ${vclochetteC}jetons.`);
                         }
                     } else {
                         message.reply(`Vous ne possedez pas de Clochette de cuivre`);
@@ -693,9 +735,11 @@ pomme, gpomme(grosse pomme), baie, jus, gelee, max(mange au hazard jusqu'au seui
                             }
                             this.inventaire.clochette.argent -= args[2];
                             this.jeton += (vclochetteA*args[2]);
+                            message.reply(`vous avez vendu ${args[2]} Clochette(s) d'argent pour ${(vclochetteA*args[2])}jetons.`);
                         } else {
                             this.inventaire.clochette.argent -= 1;
                             this.jeton += vclochetteA;
+                            message.reply(`vous avez vendu 1 Clochette d'argent pour ${vclochetteA}jetons.`);
                         }
                     } else {
                         message.reply(`Vous ne possedez pas de Clochette d'argent`);
@@ -712,9 +756,11 @@ pomme, gpomme(grosse pomme), baie, jus, gelee, max(mange au hazard jusqu'au seui
                             }
                             this.inventaire.clochette.or -= args[2];
                             this.jeton += (vclochetteO*args[2]);
+                            message.reply(`vous avez vendu ${args[2]} Clochette(s) d'or pour ${(vclochetteO*args[2])}jetons.`);
                         } else {
                             this.inventaire.clochette.or -= 1;
                             this.jeton += vclochetteO;
+                            message.reply(`vous avez vendu 1 Clochette d'o pour ${vclochetteO}jetons.`);
                         }
                     } else {
                         message.reply(`Vous ne possedez pas de Clochette d'or`);
@@ -731,9 +777,11 @@ pomme, gpomme(grosse pomme), baie, jus, gelee, max(mange au hazard jusqu'au seui
                             }
                             this.inventaire.carillon.or -= args[2];
                             this.jeton += (vcarillonO*args[2]);
+                            message.reply(`vous avez vendu ${args[2]} Carillon(s) d'or pour ${(vcarillonO*args[2])}jetons.`);
                         } else {
                             this.inventaire.carillon.or -= 1;
                             this.jeton += vcarillonO;
+                            message.reply(`vous avez vendu 1 Carillon d'or pour ${vcarillonO}jetons.`);
                         }
                     } else {
                         message.reply(`Vous ne possedez pas de Carillion d'or`);
@@ -750,15 +798,17 @@ pomme, gpomme(grosse pomme), baie, jus, gelee, max(mange au hazard jusqu'au seui
                             }
                             this.inventaire.carillon.platine -= args[2];
                             this.jeton += (vcarillonP*args[2]);
+                            message.reply(`vous avez vendu ${args[2]} Carillon(s) de platine pour ${(vcarillonP*args[2])}jetons.`);
                         } else {
                             this.inventaire.carillon.platine -= 1;
                             this.jeton += vcarillonP;
+                            message.reply(`vous avez vendu 1 Carillon de platine pour ${vcarillonP}jetons.`);
                         }
                     } else {
                         message.reply(`Vous ne possedez pas de Carillion de platine`);
                     }
                     break;
-                case "petitegem":
+                case "petitegemme":
                     if (this.inventaire.gemme.petite != 0) {
                         if (args[2]) {
                             if (typeof args[2] != this.inventaire.gemme.petite) {
@@ -769,15 +819,17 @@ pomme, gpomme(grosse pomme), baie, jus, gelee, max(mange au hazard jusqu'au seui
                             }
                             this.inventaire.gemme.petite -= args[2];
                             this.jeton += (vgemmeP*args[2]);
+                            message.reply(`vous avez vendu ${args[2]} Petite Gemme(s) pour ${(vgemmeP*args[2])}jetons.`);
                         } else {
                             this.inventaire.gemme.petite -= 1;
                             this.jeton += vgemmeP;
+                            message.reply(`vous avez vendu 1 Petite Gemme pour ${vgemmeP}jetons.`);
                         }
                     } else {
-                        message.reply(`Vous ne possedez pas de Petite Gem`);
+                        message.reply(`Vous ne possedez pas de Petite Gemme`);
                     }
                     break;
-                case "moyennegem":
+                case "moyennegemme":
                     if (this.inventaire.gemme.moyenne != 0) {
                         if (args[2]) {
                             if (typeof args[2] != this.inventaire.gemme.moyenne) {
@@ -788,15 +840,17 @@ pomme, gpomme(grosse pomme), baie, jus, gelee, max(mange au hazard jusqu'au seui
                             }
                             this.inventaire.gemme.moyenne -= args[2];
                             this.jeton += (vgemmeM*args[2]);
+                            message.reply(`vous avez vendu ${args[2]} Moyenne Gemme(s) pour ${(vgemmeM*args[2])}jetons.`);
                         } else {
                             this.inventaire.gemme.moyenne -= 1;
                             this.jeton += vgemmeM;
+                            message.reply(`vous avez vendu 1 Moyenne Gemme pour ${vgemmeM}jetons.`);
                         }
                     } else {
-                        message.reply(`Vous ne possedez pas de Gem Moyenne`);
+                        message.reply(`Vous ne possedez pas de Gemme Moyenne`);
                     }
                     break;
-                case "grossegem":
+                case "grossegemme":
                     if (this.inventaire.gemme.grosse != 0) {
                         if (args[2]) {
                             if (typeof args[2] != this.inventaire.gemme.grosse) {
@@ -807,32 +861,70 @@ pomme, gpomme(grosse pomme), baie, jus, gelee, max(mange au hazard jusqu'au seui
                             }
                             this.inventaire.gemme.grosse -= args[2];
                             this.jeton += (vgemmeG*args[2]);
+                            message.reply(`vous avez vendu ${args[2]} Grosse Gemme(s) pour ${(vgemmeG*args[2])}jetons.`);
                         } else {
                             this.inventaire.gemme.grosse -= 1;
                             this.jeton += vgemmeG;
+                            message.reply(`vous avez vendu 1 Grosse Gemme pour ${vgemmeG}jetons.`);
                         }
                     } else {
-                        message.reply(`Vous ne possedez pas de Petite Gem`);
+                        message.reply(`Vous ne possedez pas de Petite Gemme`);
                     }
+                    break;
+                case "all":
+                    var totalJeton = 0;
+                    var totalVente = 0;
+                    var valeurvente=0;
+                    if(this.inventaire.pomme>0){var nbposseder=this.inventaire.pomme;valeurvente=nbposseder*vpomme;this.inventaire.pomme=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire["grosse pomme"]>0){var nbposseder=this.inventaire["grosse pomme"];valeurvente=nbposseder*vgpomme;this.inventaire["grosse pomme"]=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.baie>0){var nbposseder=this.inventaire.baie;valeurvente=nbposseder*vbaie;this.inventaire.baie=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.jus>0){var nbposseder=this.inventaire.jus;valeurvente=nbposseder*vjus;this.inventaire.jus=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.gelee>0){var nbposseder=this.inventaire.gelee;valeurvente=nbposseder*vgelee;this.inventaire.gelee=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.bille.cuivre>0){var nbposseder=this.inventaire.bille.cuivre;valeurvente=nbposseder*vbilleC;this.inventaire.bille.cuivre=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.bille.fer>0){var nbposseder=this.inventaire.bille.fer;valeurvente=nbposseder*vbilleF;this.inventaire.bille.fer=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.bille.argent>0){var nbposseder=this.inventaire.bille.argent;valeurvente=nbposseder*vbilleA;this.inventaire.bille.argent=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.bille.or>0){var nbposseder=this.inventaire.bille.or;valeurvente=nbposseder*vbilleO;this.inventaire.bille.or=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.bille.platine>0){var nbposseder=this.inventaire.bille.platine;valeurvente=nbposseder*vbilleP;this.inventaire.bille.platine=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.clochette.cuivre>0){var nbposseder=this.inventaire.clochette.cuivre;valeurvente=nbposseder*vclochetteC;this.inventaire.clochette.cuivre=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.clochette.argent>0){var nbposseder=this.inventaire.clochette.argent;valeurvente=nbposseder*vclochetteA;this.inventaire.clochette.argent=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.clochette.or>0){var nbposseder=this.inventaire.clochette.or;valeurvente=nbposseder*vclochetteO;this.inventaire.clochette.or=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.carillon.or>0){var nbposseder=this.inventaire.carillon.or;valeurvente=nbposseder*vcarillonO;this.inventaire.carillon.or=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.carillon.platine>0){var nbposseder=this.inventaire.carillon.platine;valeurvente=nbposseder*vcarillonP;this.inventaire.carillon.platine=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.gemme.petite>0){var nbposseder=this.inventaire.gemme.petite;valeurvente=nbposseder*vgemmeP;this.inventaire.gemme.petite=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.gemme.moyenne>0){var nbposseder=this.inventaire.gemme.moyenne;valeurvente=nbposseder*vgemmeM;this.inventaire.gemme.moyenne=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.gemme.grosse>0){var nbposseder=this.inventaire.gemme.grosse;valeurvente=nbposseder*vgemmeG;this.inventaire.gemme.grosse=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    message.reply(`Vous avez vendu \`${totalVente}\` ressources pour un total de \`${totalJeton}\` Jetons`);
                     break;
                     
             
                 default:
-                    message.reply(`Pour vendre utiliser la commande de vente suivis de l'objet a vendre et du montant a vendre
-                    ex: ${bot.config.prefixe}vendre pomme 10`);
+                    message.reply(`pour vendre utiliser \`${bot.config.prefix}vendre <nom> <montant>\` :
+                    \`\`\`
+                    liste nom :
+pomme, baie, grossepomme, gelee, jus, billecuivre, billefer, billeargent, billeor, billeplatine,
+clochettecuivre, clochetteargent, clochetteor, carillionor, carillionplatine, petitegemme,
+moyennegemme, grossegemme, all.
+                    \`\`\``);
                     break;
             }
+            this.sauvegarderdonnee(bot,this.id,args);
         } else {
-            message.reply(`la commande doit être suivi par l'objet a vendre et le montant`);
+            message.reply(`pour vendre utiliser \`${bot.config.prefix}vendre <nom> <montant>\` :
+                    \`\`\`
+                    liste nom :
+pomme, baie, grossepomme, gelee, jus, billecuivre, billefer, billeargent, billeor, billeplatine,
+clochettecuivre, clochetteargent, clochetteor, carillionor, carillionplatine, petitegemme,
+moyennegemme, grossegemme, all.
+                    \`\`\``);
         }
     }
 
-    chargerdonnee(bot, message, args)
+    chargerdonnee(bot, playerid, args)
     {
         var self = this;
         var fs = require('fs');
-        if (fs.existsSync('./.data/player/'+message.author.id+'.json')) {
-            var data = fs.readFileSync('./.data/player/'+message.author.id+'.json');
+        if (fs.existsSync('./.data/player/'+playerid+'.json')) {
+            var data = fs.readFileSync('./.data/player/'+playerid+'.json');
             //console.log(data.toString());
             var obj = JSON.parse(data.toString());
             this.id = obj.id;
@@ -843,23 +935,31 @@ pomme, gpomme(grosse pomme), baie, jus, gelee, max(mange au hazard jusqu'au seui
             this.habitat = obj.habitat;
             this.inventaire = obj.inventaire;
         } else {
-            fs.writeFileSync('./.data/player/'+message.author.id+'.json', "", "utf8");  
+            fs.writeFileSync('./.data/player/'+playerid+'.json', "", "utf8");  
         }
     }
 
-    sauvegarderdonnee(bot, message, args){
+    sauvegarderdonnee(bot, playerid, args){
         var fs = require('fs');
         //console.log("##########################");
         var tosave = JSON.stringify(this);
         //console.log(tosave);
-        fs.writeFileSync('./.data/player/'+message.author.id+'.json',tosave, 'utf8');
+        fs.writeFileSync('./.data/player/'+playerid+'.json',tosave, 'utf8');
     } 
 }
 
-function reveil(etat, message)
+function reveil(self, message, bot, args)
 {
-    etat = "innocupe";
-    message.reply(`Vous vous êtes reveillez.`);
+    self.etat = "innocupe";
+    message.reply(`Vous vous êtes reveillé.`);
+    self.sauvegarderdonnee(bot, message.author.id, args);
+}
+
+function attenteAction(self, message, bot, args)
+{
+    self.etat = "innocupe";
+    self.sauvegarderdonnee(bot,message.author.id,args);
+    message.reply(args);
 }
 
 module.exports = AraneinEntity;
