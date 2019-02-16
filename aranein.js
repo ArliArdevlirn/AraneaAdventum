@@ -1,68 +1,68 @@
 //energie consommée par les activitées.
-const cuillette = 2;
-const exploration = 5;
-
-const someille = 60; // energie restauré par le someille.
+const cuillette = 5;
+const exploration = 10;
+//temps d'attente pour les activitées
+const tsomeille = 60; // temps pour dormir
 const tcueillir = 10; //temps pour cueillir
 const texplorer = 10; //temps pour explorer
 //energie restauré par eElement.
-const epomme = 30;
-const egpomme = 60;
-const ebaie = 20;
-const ejus = 50;
+const epomme = 10;
+const egpomme = 20;
+const ebaie = 2;
+const ejus = 20;
 const egelee = 40
+const esomeille = 70;
 //valeur en jeton de vElement.
-const vpomme = 50;
-const vgpomme = 80;
-const vbaie = 20;
-const vjus = 60;
-const vgelee = 70;
-const vbilleC = 100;
-const vbilleF = 100;
-const vbilleA = 120;
-const vbilleO = 150;
-const vbilleP = 200;
-const vclochetteC = 110;
-const vclochetteA = 140;
-const vclochetteO = 170;
-const vcarillonO = 500;
-const vcarillonP = 800;
-const vgemmeP = 750;
-const vgemmeM = 1250;
-const vgemmeG = 2000;
+const vpomme = 5;
+const vgpomme = 10;
+const vbaie = 1;
+const vjus = 5;
+const vgelee = 10;
+const vbilleC = 5;
+const vbilleF = 10;
+const vbilleA = 15;
+const vbilleO = 20;
+const vbilleP = 25;
+const vclochetteC = 30;
+const vclochetteA = 50;
+const vclochetteO = 80;
+const vcarillonO = 100;
+const vcarillonP = 200;
+const vgemmeP = 200;
+const vgemmeM = 800;
+const vgemmeG = 500;
 //prix habitat pElement.
 const pcaverne = 6000;
 const ptente = 8000;
-const pcahute = 12000;
-const pmaison = 20000;
-const pmanoir = 50000;
-const ppalais = 100000;
-//rareté rElement / 1000.
+const pcahute = 30000;
+const pmaison = 100000;
+const pmanoir = 500000;
+const ppalais = 1000000;
+//Rareté individuel/1000
+//Rareté Cueillette.
 const rpomme = 300;
 const rgpomme = 100;
 const rbaie = 600;
-
-const rbilleC = 100;
-const rbilleF = 100;
-const rbilleA = 100;
-const rbilleO = 50;
-const rbilleP = 50;
+//Rareté individuel
+const rbilleC = 180;
+const rbilleF = 130;
+const rbilleA = 90;
+const rbilleO = 60;
+const rbilleP = 40;
 const rclochetteC = 100;
 const rclochetteA = 100;
 const rclochetteO = 100;
 const rcarillonO = 100;
 const rcarillonP = 100;
-const rgemmeA = 100; //rareté d'une gemme
-//rareté de la taille de la gemme
 const rgemmeP = 65;
 const rgemmeM = 30;
 const rgemmeG = 5;  
-//rareter groupe
-const rgbille = 400;
-const rgclochette = 300;
-const rgcarillon = 200;
+//Rareté groupe/1000
+const rgbille = 500;
+const rgclochette = 250;
+const rgcarillon = 150;
 const rggemme = 100;
-
+//recompense min/max
 const explomin = 6;
 const explomax = 12;
 const cueillmin = 6;
@@ -159,7 +159,7 @@ class AraneinEntity
             if (nbgpomme>0) {
                 msg += `\`${nbgpomme} grosse pomme(s) ,\``
             }
-            this.etat = "occupe";
+            this.etat = "cueillette";
             setTimeout(attenteAction, tcueillir*1000, this, message, bot, msg);
             message.reply("est parti faire cueillette.");
             this.sauvegarderdonnee(bot,this.id,args);
@@ -283,7 +283,7 @@ class AraneinEntity
             if (nbgemmeG>0) {
                 msg += `\`${nbgemmeG} grosse gemme(s),\` `;
             }
-            this.etat = "occupe";
+            this.etat = "explore";
             setTimeout(attenteAction, texplorer*1000, this, message, bot, msg);
             message.reply("est parti en exploration.");
             this.sauvegarderdonnee(bot,this.id,args);
@@ -297,13 +297,13 @@ class AraneinEntity
     dormir(bot, message, args)
     {
         if (this.etat == "innocupe") {
-            this.etat = "dormir";
-            this.energie += 50;
+            this.etat = "dort";
+            this.energie += esomeille;
             if (this.energie > this.energiemax) {
                 this.energie = this.energiemax;
             }
             message.reply(`Vous vous couchez et reposerez ${someille}secondes`);
-            setTimeout(reveil, someille*1000, this, message, bot, args);
+            setTimeout(reveil, tsomeille*1000, this, message, bot, args);
             this.sauvegarderdonnee(bot,this.id,args);
             //message.reply(`Message non définis`);
         } else {
@@ -321,31 +321,31 @@ class AraneinEntity
 
     profil(bot, message, args)
     {
-        var msginventaire = `profil de ${message.author.username}: \n`;
-        msginventaire += `Energie : ${this.energie}/${this.energiemax}\n`
-        msginventaire += `Jeton(s): ${this.jeton}\n`;
-        msginventaire += `\`\`\`
+        var msginventaire = `
+__**\`Profil de ${message.author.username}\`**__
+__**Energie :**__ ***\`${this.energie}\`***/**\`${this.energiemax}\`**      __**Etat**__ : *\`${this.etat}\`*
+__**Jeton(s):**__ ***\`${this.jeton}\`***
+__**Fruit :**__
+\`\`\`
+Baie : ${this.inventaire.baie}
 Pomme : ${this.inventaire.pomme}
 Grosse pomme : ${this.inventaire["grosse pomme"]}
-Baie : ${this.inventaire.baie}
 \`\`\`
+__**Trésor :**__
 \`\`\`
 Bille de cuivre : ${this.inventaire.bille.cuivre}
 Bille de fer : ${this.inventaire.bille.fer}
 Bille d'argent : ${this.inventaire.bille.argent}
 Bille d'or : ${this.inventaire.bille.or}
 Bille de platine : ${this.inventaire.bille.platine}
-\`\`\`
-\`\`\`
+
 Clochette de cuivre : ${this.inventaire.clochette.cuivre}
 Clochette d'argent : ${this.inventaire.clochette.argent}
 Clochette d'or : ${this.inventaire.clochette.or}
-\`\`\`
-\`\`\`
+
 Carillon d'or : ${this.inventaire.carillon.or}
 Carillon de platine : ${this.inventaire.carillon.platine}
-\`\`\`
-\`\`\`
+
 Petite gemme : ${this.inventaire.gemme.petite}
 Gemme moyenne : ${this.inventaire.gemme.moyenne}
 Grosse gemme : ${this.inventaire.gemme.grosse}
@@ -378,12 +378,12 @@ Grosse gemme : ${this.inventaire.gemme.grosse}
                             }
                         }
                     }
-                    message.reply(`Vous avez mangé ${nbmanger} pomme(s), récupérant ainsi ${nbmanger*epomme} énergie.\n Vous avez désormais ${this.energie}énergie.`);
+                    message.reply(`Vous avez mangé ${nbmanger} pomme(s), récupérant ainsi ${nbmanger*epomme} énergies.\n Vous avez désormais ${this.energie} d'énergie.`);
                 } else {
                     message.reply(`Vous ne possedez pas de pomme.`);
                 }
                 break;
-            case "gpomme":
+            case "grossepomme":
                 if (this.inventaire["grosse pomme"] >= 1) {
                     var nbdispo = this.inventaire["grosse pomme"];
                     if (nbdispo < args[2]) {
@@ -400,7 +400,7 @@ Grosse gemme : ${this.inventaire.gemme.grosse}
                             }
                         }
                     }
-                    message.reply(`Vous avez mangé ${nbmanger} grosse pomme(s), récupérant ainsi ${nbmanger*egpomme} énergie.\n Vous avez désormais ${this.energie}énergie.`);
+                    message.reply(`Vous avez mangé ${nbmanger} grosse pomme(s), récupérant ainsi ${nbmanger*egpomme} énergies.\n Vous avez désormais ${this.energie} d'énergie.`);
                 } else {
                     message.reply(`Vous ne possedez pas de grosse pomme.`);
                 }
@@ -422,7 +422,7 @@ Grosse gemme : ${this.inventaire.gemme.grosse}
                             }
                         }
                     }
-                    message.reply(`Vous avez mangé ${nbmanger} baie(s), récupérant ainsi ${nbmanger*ebaie} énergie.\n Vous avez désormais ${this.energie}énergie.`);
+                    message.reply(`Vous avez mangé ${nbmanger} baie(s), récupérant ainsi ${nbmanger*ebaie} énergies.\n Vous avez désormais ${this.energie} d'énergie.`);
                 } else {
                     message.reply(`Vous ne possedez pas de baie.`);
                 }
@@ -444,7 +444,7 @@ Grosse gemme : ${this.inventaire.gemme.grosse}
                             }
                         }
                     }
-                    message.reply(`Vous avez mangé ${nbmanger} jus, récupérant ainsi ${nbmanger*ejus} énergie.\n Vous avez désormais ${this.energie}énergie.`);
+                    message.reply(`Vous avez mangé ${nbmanger} jus, récupérant ainsi ${nbmanger*ejus} énergies.\n Vous avez désormais ${this.energie} d'énergie.`);
                 } else {
                     message.reply(`Vous ne possedez pas de jus.`);
                 }
@@ -466,7 +466,7 @@ Grosse gemme : ${this.inventaire.gemme.grosse}
                             }
                         }
                     }
-                    message.reply(`Vous avez mangé ${nbmanger} gelée(s), récupérant ainsi ${nbmanger*egelee} énergie.\n Vous avez désormais ${this.energie}énergie.`);
+                    message.reply(`Vous avez mangé ${nbmanger} gelée(s), récupérant ainsi ${nbmanger*egelee} énergies.\n Vous avez désormais ${this.energie} d'énergie.`);
                 } else {
                     message.reply(`Vous ne possedez pas de gelée.`);
                 }
@@ -476,8 +476,11 @@ Grosse gemme : ${this.inventaire.gemme.grosse}
                       message.reply("```\nFonction actuellement en developpement.\n```");      
                 break;
             default:
-                message.reply(`vous devez indiquer ce que vous désirez manger et en quelle quantité à la suite de cette commande
-pomme, gpomme(grosse pomme), baie, jus, gelee, max(mange au hazard jusqu'au seuil d'énergie max). `);
+                message.reply(`pour manger utiliser \`${bot.config.prefix}manger <nom> <montant>\` :
+                __**Liste nom :**__
+\`baie\`, \`pomme\`, \`grossepomme\`, \`gelee\`, \`jus\`,
+\`max\` *(mange autant que possible)*
+                `);
                 break;
         }
         this.sauvegarderdonnee(bot,this.id,args);
@@ -895,27 +898,63 @@ pomme, gpomme(grosse pomme), baie, jus, gelee, max(mange au hazard jusqu'au seui
                     if(this.inventaire.gemme.grosse>0){var nbposseder=this.inventaire.gemme.grosse;valeurvente=nbposseder*vgemmeG;this.inventaire.gemme.grosse=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
                     message.reply(`Vous avez vendu \`${totalVente}\` ressources pour un total de \`${totalJeton}\` Jetons`);
                     break;
+                case "fruit":
+                    var totalJeton = 0;
+                    var totalVente = 0;
+                    var valeurvente=0;
+                    if(this.inventaire.pomme>0){var nbposseder=this.inventaire.pomme;valeurvente=nbposseder*vpomme;this.inventaire.pomme=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire["grosse pomme"]>0){var nbposseder=this.inventaire["grosse pomme"];valeurvente=nbposseder*vgpomme;this.inventaire["grosse pomme"]=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.baie>0){var nbposseder=this.inventaire.baie;valeurvente=nbposseder*vbaie;this.inventaire.baie=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    message.reply(`Vous avez vendu \`${totalVente}\` fruits pour un total de \`${totalJeton}\` Jetons`);
+                    break;
+                case "tresor":
+                    var totalJeton = 0;
+                    var totalVente = 0;
+                    var valeurvente=0;
+                    if(this.inventaire.bille.cuivre>0){var nbposseder=this.inventaire.bille.cuivre;valeurvente=nbposseder*vbilleC;this.inventaire.bille.cuivre=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.bille.fer>0){var nbposseder=this.inventaire.bille.fer;valeurvente=nbposseder*vbilleF;this.inventaire.bille.fer=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.bille.argent>0){var nbposseder=this.inventaire.bille.argent;valeurvente=nbposseder*vbilleA;this.inventaire.bille.argent=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.bille.or>0){var nbposseder=this.inventaire.bille.or;valeurvente=nbposseder*vbilleO;this.inventaire.bille.or=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.bille.platine>0){var nbposseder=this.inventaire.bille.platine;valeurvente=nbposseder*vbilleP;this.inventaire.bille.platine=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.clochette.cuivre>0){var nbposseder=this.inventaire.clochette.cuivre;valeurvente=nbposseder*vclochetteC;this.inventaire.clochette.cuivre=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.clochette.argent>0){var nbposseder=this.inventaire.clochette.argent;valeurvente=nbposseder*vclochetteA;this.inventaire.clochette.argent=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.clochette.or>0){var nbposseder=this.inventaire.clochette.or;valeurvente=nbposseder*vclochetteO;this.inventaire.clochette.or=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.carillon.or>0){var nbposseder=this.inventaire.carillon.or;valeurvente=nbposseder*vcarillonO;this.inventaire.carillon.or=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.carillon.platine>0){var nbposseder=this.inventaire.carillon.platine;valeurvente=nbposseder*vcarillonP;this.inventaire.carillon.platine=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.gemme.petite>0){var nbposseder=this.inventaire.gemme.petite;valeurvente=nbposseder*vgemmeP;this.inventaire.gemme.petite=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.gemme.moyenne>0){var nbposseder=this.inventaire.gemme.moyenne;valeurvente=nbposseder*vgemmeM;this.inventaire.gemme.moyenne=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    if(this.inventaire.gemme.grosse>0){var nbposseder=this.inventaire.gemme.grosse;valeurvente=nbposseder*vgemmeG;this.inventaire.gemme.grosse=0;this.jeton+=valeurvente;totalJeton+=valeurvente;totalVente+=nbposseder;}
+                    message.reply(`Vous avez vendu \`${totalVente}\` trésors pour un total de \`${totalJeton}\` Jetons`);
+                    break;
                     
             
                 default:
-                    message.reply(`pour vendre utiliser \`${bot.config.prefix}vendre <nom> <montant>\` :
-                    \`\`\`
-                    liste nom :
-pomme, baie, grossepomme, gelee, jus, billecuivre, billefer, billeargent, billeor, billeplatine,
-clochettecuivre, clochetteargent, clochetteor, carillionor, carillionplatine, petitegemme,
-moyennegemme, grossegemme, all.
-                    \`\`\``);
+                message.reply(`pour vendre utiliser \`${bot.config.prefix}vendre <nom> <montant>\` :
+                __**Liste nom :**__
+\`pomme\`, \`baie\`, \`grossepomme\`, \`gelee\`, \`jus\`,
+\`billecuivre\`, \`billefer\`, \`billeargent\`, \`billeor\`, \`billeplatine\`,
+\`clochettecuivre\`, \`clochetteargent\`, \`clochetteor\`, 
+\`carillionor\`, \`carillionplatine\`, 
+\`petitegemme\`, \`moyennegemme\`, \`grossegemme\`, 
+\`all\` *(tout vendre)*
+\`fruit\` *(vendre tout les fruits)*
+\`tresor\` *(vendre tout les trésors)*
+                `);
                     break;
             }
             this.sauvegarderdonnee(bot,this.id,args);
         } else {
             message.reply(`pour vendre utiliser \`${bot.config.prefix}vendre <nom> <montant>\` :
-                    \`\`\`
-                    liste nom :
-pomme, baie, grossepomme, gelee, jus, billecuivre, billefer, billeargent, billeor, billeplatine,
-clochettecuivre, clochetteargent, clochetteor, carillionor, carillionplatine, petitegemme,
-moyennegemme, grossegemme, all.
-                    \`\`\``);
+                    __**Liste nom :**__
+\`pomme\`, \`baie\`, \`grossepomme\`, \`gelee\`, \`jus\`,
+\`billecuivre\`, \`billefer\`, \`billeargent\`, \`billeor\`, \`billeplatine\`,
+\`clochettecuivre\`, \`clochetteargent\`, \`clochetteor\`, 
+\`carillionor\`, \`carillionplatine\`, 
+\`petitegemme\`, \`moyennegemme\`, \`grossegemme\`, 
+\`all\` *(tout vendre)*
+\`fruit\` *(vendre tout les fruits)*
+\`tresor\` *(vendre tout les trésors)*
+                    `);
         }
     }
 
@@ -926,7 +965,11 @@ moyennegemme, grossegemme, all.
         if (fs.existsSync('./.data/player/'+playerid+'.json')) {
             var data = fs.readFileSync('./.data/player/'+playerid+'.json');
             //console.log(data.toString());
-            var obj = JSON.parse(data.toString());
+            try {
+                var obj = JSON.parse(data.toString());
+            } catch (error) {
+                    var obj = new AraneinEntity(playerid);
+            }
             this.id = obj.id;
             this.energiemax = obj.energiemax;
             this.energie = obj.energie;

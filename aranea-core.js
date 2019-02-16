@@ -8,20 +8,26 @@ const config = require('./.data/config.json');
 client.config = config;
 
 
-//reset all player etat
+//reset all player etat on bot start in case the bot crashed with timer active
 client.on('ready', () => {
     console.log('AraneaClicker est pret');
     var sfs = require('fs');
+    //delete a file
+    //sfs.unlinkSync("./.data/player/undefined.json");
+    //
     sfs.readdir("./.data/player/", (err, files) => {
         if (err) return console.error(err);
         files.forEach(file => {
             if(!file.endsWith('.json')) return;
             let splayer_id = file.split(".")[0];
-            var splayer = new AraneinEntity(splayer_id);
-            splayer.chargerdonnee(client,splayer_id,"fake");
-            splayer.resetstatut(client,splayer_id,"fake");
-            splayer.sauvegarderdonnee(client,splayer_id,"fake");
-            console.log(`reset de l'etat de `+splayer_id);
+            if (splayer_id == "undefined") {
+                sfs.unlinkSync("./.data/player/undefined.json");
+            } else {
+                var splayer = new AraneinEntity(splayer_id);
+                splayer.chargerdonnee(client,splayer_id,"fake");
+                splayer.resetstatut(client,splayer_id,"fake");
+                console.log(`reset de l'etat de `+splayer_id);
+            }
         });
       });
     
@@ -90,15 +96,15 @@ ${client.config.prefix}profil, ${client.config.prefix}vendre
 });
 
 client.login(config.token);
-
+//Serveur http integrer pour garder le bot actif chez mon hebergeur
 const http = require('http');
 const express = require('express');
 const app = express();
 app.get("/", (request, response) => {
   //console.log(Date.now() + " Ping Received");
-  response.sendStatus(200);                            /// example how to keep your bot 24/7
+  response.sendStatus(200);                            
 });
 app.listen(process.env.PORT);
 setInterval(() => {
-  http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`);
+  http.get(`http://UrltoKeepbotAlive`);
 }, 2800);
